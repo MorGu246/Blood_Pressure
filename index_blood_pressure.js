@@ -10,7 +10,12 @@ app.use(bodyParser.urlencoded({extended: false}));
 const path=require('path');
 app.use(express.static(path.join(__dirname,"")));
 
-let Blood_Pressures=[];
+let db_M = require('../blood_database');
+global.db_pool=db_M.pool;
+
+global.htmlspecialchars=require('htmlspecialchars');
+
+/*let Blood_Pressures=[];
 
 app.post('/blood',(req,res) => {
 let user={};
@@ -47,7 +52,14 @@ app.delete('/blood',(req,res) => {
 let idx=req.body.id;
 Blood_Pressures.splice(idx,1);
 res.status(200).json(Blood_Pressures);
-});
+});*/
+//////////////////////////////////
+const FR_R=require('../routers/fronted_router');
+app.use('/blood',FR_R);
+
+const Blood_R=require('../routers/blood_R');
+app.use('/B/',Blood_R);    //http://localhost:4506/B/blood שיופיע ביו אר אל של הדף הקדמי
+/////////////////////////////////
 
 app.get('/admin',(req,res) => {
 res.status(200).sendFile(path.join(__dirname,"/front_page_blood_pressure.html"));
