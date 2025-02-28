@@ -16,7 +16,7 @@
     //var blood_info_to_show=[];
 
     async function GetData(){
-        let url="/";
+        let url="/blood";
         let response=await fetch(url);
         let reply=await response.json();
         blood_data = reply;//.blood_info;
