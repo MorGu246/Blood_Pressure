@@ -62,11 +62,11 @@ app.use('/B/',Blood_R);    //http://localhost:4506/B/blood שיופיע ביו �
 /////////////////////////////////
 
 app.get('/admin',(req,res) => {
-res.status(200).sendFile(path.join(__dirname,"/front_page_blood_pressure.html"));
+res.status(200).sendFile(path.join(__dirname,"../views/front_page_blood_pressure.html"));
 });
 
 app.get('/',(req,res) => {
-res.status(200).sendFile(path.join(__dirname,"/front_page_blood_pressure.html"));
+res.status(200).sendFile(path.join(__dirname,"../views/front_page_blood_pressure.html"));
 });
 
 app.listen(port, () => {
