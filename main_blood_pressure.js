@@ -15,12 +15,28 @@
     var blood_data=[];
     //var blood_info_to_show=[];
 
+    /*function SetBloodSelect() {
+        let s='';
+        s+=`<option value="-1">-- כל הכתות --</option>`;
+        for(let kita_id in kitot_data){
+            s+=`<option value="${kita_id}">${kitot_data[kita_id]}</option>`;
+        }
+        document.getElementById('kitaSelect').innerHTML=s;
+    }*/
+    var blood_data=[];
     async function GetData(){
-        let url="/blood";
+        let url="/B/blood";
         let response=await fetch(url);
         let reply=await response.json();
-        blood_data = reply;//.blood_info;
-        //showData();
+        console.log(reply);
+        blood_data = reply.blood_info;
+        showData();
+        /*if (reply.msg === "ok") {
+            blood_data = reply.data;  // The blood data from the backend
+            showData();  // Call the function to display the data in the table
+        } else {
+            console.log("Error fetching data", reply);
+        }*/
     }
 
     function showData(){
@@ -37,10 +53,38 @@
         }
         document.getElementById("tableBody").innerHTML=s;
     }
-    await GetData();
-    showData();
+    GetData();
+    //showData();
 
-/*async function GetData(){
+
+
+
+
+/*
+    var kitot_data=[];
+    var students_data=[];
+    var student_to_show=[];
+    function SetKitotSelect() {
+        let s='';
+        s+=`<option value="-1">-- כל הכתות --</option>`;
+        for(let kita_id in kitot_data){
+            s+=`<option value="${kita_id}">${kitot_data[kita_id]}</option>`;
+        }
+        document.getElementById('kitaSelect').innerHTML=s;
+    }
+
+    function filterData() {
+        let kita = Number(document.getElementById('kitaSelect').value);
+        let txt  =        document.getElementById('txtToFind').value;
+        student_to_show = students_data.filter(std => {
+            return (
+                ((kita < 0) || (std.kita_id === kita))
+                &&
+                ((txt === "") || (std.name.includes(txt)) || (std.tz.includes(txt)) )
+            )
+        });
+    }
+    async function GetData(){
         let url="/S/studentslist";
         let response=await fetch(url);
         let reply=await response.json();
@@ -63,31 +107,5 @@
         }
         document.getElementById("data_table").innerHTML=s;
     }
-    GetData();*/
-/////////////////////////////////////////////////////////////////////////////////////
-    /*let AllItems=[];
-    async function getAllItems(){
-        let url="/item";
-        let response=await fetch(url);
-        let data=await response.json();
-        AllItems=data;
-        console.log("data was entered");
-    }
-    function showItemsAsTable(){
-        let html="";
-        //let idx1;
-        for(let idx in AllItems){
-        let row=AllItems[idx];
-        html+="<tr>";
-        html+=`<td><button onclick="showEditItem(${idx},'${row.name}','${row.kamut}');">edit</button></td>`;
-        html+=`<td>${row.name}</td>`;
-        html+=`<td>${row.kamut}</td>`;
-        html+=`<td><button onclick="removeItem(${idx});">delete</button></td>`;
-        html+="</tr>";
-        }
-        document.getElementById("data_table_body").innerHTML=html;
-    }
-
-    await getAllItems();
-    console.log(AllItems);
-    showItemsAsTable();*/
+    GetData();
+    */
