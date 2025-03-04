@@ -70,10 +70,10 @@ async function UpdateBloodPressure(req,res,next){
     //let student_name     = req.body.student_name;
     let Query = ` UPDATE blood_info SET `;
     Query += ` name = '${name}' , `,
-    Query += ` high = '${high}' `,
-    Query += ` high = '${low}' `,
-    Query += ` high = '${pulse}' `,
-    Query += ` high = '${tz}' `,
+    Query += ` high = '${high}' , `,
+    Query += ` low = '${low}' , `,
+    Query += ` pulse = '${pulse}' , `,
+    Query += ` date = '${date}' `,
     Query += ` WHERE id = ${idx} `;
     const promisePool = db_pool.promise();
     let rows=[];
