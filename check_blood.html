@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body{direction: rtl;}
+    </style>
+</head>
+<body>
+    <h1>מעקב לחץ דם</h1>
+    <select name="users" id="userSelect">רשימת משתמשים</select></br>
+    <div id="AddBloodInfo" style="background-color: cyan;padding:10px;">
+        <input id="blood_idx" type="hidden">
+        <label for="user_name">שם פציינט</label>
+        <input type="text" id="user_name"><br>
+        <label for="low_pulse">ערך נמוך - דיסטולי</label>
+        <input type="text" id="low_pulse"><br>
+        <label for="high_pulse">ערך גבוה - סיסטולי</label>
+        <input type="text" id="high_pulse"><br>
+        <label for="pulse">דופק</label>
+        <input type="text" id="pulse"><br>
+        <button id="btn_add" onclick="SaveBloodToList()">שמור</button>
+        <button id="btn_edit" onclick="EditBloodToList()">עדכן</button>
+    </div><br>
+        <button onclick="check()">רשימת בדיקות הדם לפי תאריך הוספה</button><br>
+    <table border="1">
+        <thead>
+            <th></th>
+            <th>שם</th>
+            <th>ערך נמון</th>
+            <th>ערך גבוה</th>
+            <th>דופק</th>
+            <th>תאריך</th>
+        </thead>
+        <tbody id="tableBody">
+
+        </tbody>
+        <tr><td colspan="0">
+            <button id="addButton" onclick="showAddForm()">הוספה</button>
+        </td></tr>
+    </table>
+    <script>
+        window.onload = function() {
+    check();
+}
+    let AllNames=[];
+    async function SetNamesSelect() {
+        let s='';
+        /*s+=`<option value="-1">-- כל המשתמשים --</option>`;
+        for(let idx in AllNames){
+            let row=AllNames[idx];
+            s+=`<option value=${idx}>${row.name}</option>`;//${AllNames[name_id]}
+            }
+        document.getElementById('userSelect').innerHTML=s;*/
+        s+='<option value="-1">-- כל המשתמשים --</option>';
+        let seenNames = new Set();
+        AllNames.sort((a, b) => a.name.localeCompare(b.name));
+        for (let idx in AllNames) {
+        let row = AllNames[idx];
+        if (!seenNames.has(row.name)) {
+            seenNames.add(row.name);
+            s += `<option value="${idx}">${row.name}</option>`;
+            }
+        }
+    document.getElementById('userSelect').innerHTML=s;
+    document.getElementById('userSelect').addEventListener('change', filterRowsByName);
+    }
+    
+    function filterRowsByName() {
+    let selectedIdx = document.getElementById('userSelect').value;
+    if (selectedIdx == -1) {
+        showNamesAsTable();
+    } else {
+        let selectedName = AllNames[selectedIdx].name;
+        let filteredRows = AllNames.filter(row => row.name === selectedName);
+        let html = '';
+        filteredRows.forEach((row, idx) => {
+            html += "<tr>";
+            html += `<td><button onclick="showEditBlood(${idx},'${row.name}','${row.low}','${row.high}','${row.pulse}');">עריכה</button></td>`;
+            html += `<td>${row.name}</td>`;
+            html += `<td>${row.low}</td>`;
+            html += `<td>${row.high}</td>`;
+            html += row.pulse >= row.high * 1.2 ? 
+                `<td style="background-color:red">${row.pulse}</td>` :
+                `<td>${row.pulse}</td>`;
+            html += `<td>${row.date}</td>`;
+            html += `<td><button onclick="removeBlood(${idx});">מחיקה</button></td>`;
+            html += "</tr>";
+        });
+        document.getElementById("tableBody").innerHTML = html;
+    }
+}
+    async function getAllNames(){
+        let url="/blood_check";
+        let response=await fetch(url);
+        let data=await response.json();
+        AllNames=data;
+        console.log("data was entered");
+    }
+    function showNamesAsTable(){
+        let html="";
+        for(let idx in AllNames){
+        let row=AllNames[idx];
+        html+="<tr>";
+        html+=`<td><button onclick="showEditBlood(${idx},'${row.name}','${row.low}','${row.high}','${row.pulse}');">עריכה</button></td>`;//,'${row.date}'
+        html+=`<td>${row.name}</td>`;
+        html+=`<td>${row.low}</td>`;
+        html+=`<td>${row.high}</td>`;
+        if(row.pulse>=row.high*1.2){
+            html+=`<td style="background-color:red">${row.pulse}</td>`;
+        }else{
+            html+=`<td>${row.pulse}</td>`;
+        }
+        html+=`<td>${row.date}</td>`;
+        html+=`<td><button onclick="removeBlood(${idx});">מחיקה</button></td>`;
+        html+="</tr>";
+        }
+        document.getElementById("tableBody").innerHTML=html;
+    }
+    function showEditBlood(idx,name,low,high,pulse){
+        document.getElementById("blood_idx").value=idx;
+        document.getElementById("user_name").value=name;
+        document.getElementById("low_pulse").value=low;
+        document.getElementById("high_pulse").value=high;
+        document.getElementById("pulse").value=pulse;
+        document.getElementById("btn_add").style.display="none";
+        document.getElementById("btn_edit").style.display="block";
+        document.getElementById("AddBloodInfo").style.display="block";
+    }
+    function showAddForm(){
+        document.getElementById("blood_idx").value=-1;
+        document.getElementById("user_name").value="";
+        document.getElementById("low_pulse").value="";
+        document.getElementById("high_pulse").value="";
+        document.getElementById("pulse").value="";
+        document.getElementById("btn_add").style.display="block";
+        document.getElementById("btn_edit").style.display="none";
+        document.getElementById("AddBloodInfo").style.display="block";
+    }
+    async function SaveBloodToList(){
+        let name = document.getElementById("user_name").value;
+        let low = document.getElementById("low_pulse").value;
+        let high = document.getElementById("high_pulse").value;
+        let pulse = document.getElementById("pulse").value;
+        let url ="/blood_check";
+        let response=await fetch(url,
+            {
+                method:'POST',
+            headers: {
+                'Content-Type':'application/json'
+            },
+            body:JSON.stringify({name:name,low:low,high:high,pulse:pulse})
+            }
+        );
+        let data=await response.json();
+        await check();
+        document.getElementById("AddBloodInfo").style.display="none";
+        }
+        async function EditBloodToList(){
+        let idx  = document.getElementById("blood_idx").value;
+        let name = document.getElementById("user_name").value;
+        let low = document.getElementById("low_pulse").value;
+        let high = document.getElementById("high_pulse").value;
+        let pulse = document.getElementById("pulse").value;
+        let body_data=JSON.stringify({id:idx,name:name,low:low,high:high,pulse:pulse});
+        console.log(body_data);
+        let url ="/blood_check";
+        let response=await fetch(url,
+            {
+                method:'put',
+            headers: {
+                'Content-Type':'application/json'
+            },
+            body:body_data
+            }
+        );
+        let data=await response.json();
+        await check();
+        document.getElementById("AddBloodInfo").style.display="none";
+        }
+        async function removeBlood(idx){
+            let url ="/blood_check";
+        let response=await fetch(url,
+            {
+                method:'delete',
+            headers: {
+                'Content-Type':'application/json'
+            },
+            body:JSON.stringify({id:idx})
+            }
+        );
+        let data=await response.json();
+        await check();
+        }
+    async function check(){
+        await getAllNames();
+        showNamesAsTable();
+        SetNamesSelect();
+    }
+    </script>
+</body>
+</html>
